@@ -48,7 +48,7 @@ jobs:
         run: |
           mkdir -p .ssh
           chmod 700 .ssh
-          echo -e "Host *\nStrictHostKeyChecking no" >.ssh/config
+          echo -e "Host *\nStrictHostKeyChecking accept-new\nIdentityFile ~/.ssh/id_key" >.ssh/config
           chmod 600 .ssh/config
           cat .ssh/config
           echo '${{ secrets.ARM64_SSH_KEY }}' >>.ssh/id_key
