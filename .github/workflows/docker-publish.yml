@@ -44,6 +44,18 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # v3.2.0
 
+      - name: Configure ARM64 builder
+        run: |
+          mkdir -p .ssh
+          echo ${{ secrets.ARM64_SSH_KEY }} >>.ssh/authorized_keys
+          chmod 700 .ssh
+          chmod 600 .ssh/authorized_keys
+          docker context create arm64 --docker host=${{ secrets.ARM64_DOCKER }}
+          docker buildx create --use --name multiarch default
+          docker buildx create --append --name multiarch arm64
+          docker context ls
+          docker buildx ls
+
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
