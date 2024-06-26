@@ -47,10 +47,10 @@ jobs:
       - name: Configure ARM64 builder
         run: |
           mkdir -p .ssh
-          echo ${{ secrets.ARM64_SSH_KEY }} >>.ssh/authorized_keys
           chmod 700 .ssh
-          chmod 600 .ssh/authorized_keys
-          docker context create arm64 --docker host=${{ secrets.ARM64_DOCKER }}
+          echo '${{ secrets.ARM64_SSH_KEY }}' >>.ssh/id_key
+          chmod 600 .ssh/id_key
+          docker context create arm64 --docker host='${{ secrets.ARM64_DOCKER }}'
           docker buildx create --use --name multiarch default
           docker buildx create --append --name multiarch arm64
           docker context ls
