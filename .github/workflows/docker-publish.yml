@@ -53,6 +53,7 @@ jobs:
           cat .ssh/config
           echo '${{ secrets.ARM64_SSH_KEY }}' >>.ssh/id_key
           chmod 600 .ssh/id_key
+          ssh -o StrictHostKeyChecking=accept-new '${{ secrets.ARM64_DOCKER }}' docker info
           docker context create arm64 --docker host='${{ secrets.ARM64_DOCKER }}'
           docker buildx create --use --name multiarch default
           docker buildx create --append --name multiarch arm64
