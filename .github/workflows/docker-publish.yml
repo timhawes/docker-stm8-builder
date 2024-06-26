@@ -46,14 +46,12 @@ jobs:
 
       - name: Configure ARM64 builder
         run: |
-          mkdir -p .ssh
-          chmod 700 .ssh
-          echo -e "Host *\nStrictHostKeyChecking accept-new\nIdentityFile ~/.ssh/id_key\nIdentitiesOnly yes" >.ssh/config
-          chmod 600 .ssh/config
-          cat .ssh/config
-          echo '${{ secrets.ARM64_SSH_KEY }}' >>.ssh/id_key
-          chmod 600 .ssh/id_key
-          ssh -v -o StrictHostKeyChecking=accept-new '${{ secrets.ARM64_DOCKER }}' docker info
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo -e "Host *\nStrictHostKeyChecking accept-new" >~/.ssh/config
+          chmod 600 ~/.ssh/config
+          echo '${{ secrets.ARM64_SSH_KEY }}' >>~/.ssh/id_key
+          chmod 600 ~/.ssh/id_key
           docker context create arm64 --docker host='${{ secrets.ARM64_DOCKER }}'
           docker buildx create --use --name multiarch default
           docker buildx create --append --name multiarch arm64
