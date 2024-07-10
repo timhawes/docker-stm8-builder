@@ -30,6 +30,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Get a new OIDC token
+        id: oidc-token-test
+        uses: actions/github-script@v6
+        with:
+          script: |
+            return await github.actions.createOIDCToken({
+              aud: 'sigstore'
+            })
+
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
@@ -97,6 +106,15 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
 
+      - name: Get a new OIDC token
+        id: oidc-token
+        uses: actions/github-script@v6
+        with:
+          script: |
+            return await github.actions.createOIDCToken({
+              aud: 'sigstore'
+            })
+
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
       # repository is public to avoid leaking data.  If you would like to publish
@@ -108,6 +126,7 @@ jobs:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
           TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          COSIGN_OIDC_TOKEN: ${{ steps.oidc-token.outputs.oidc_token }}
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+        run: echo "${TAGS}" | xargs -I {} cosign sign --oidc-token $COSIGN_OIDC_TOKEN --yes {}@${DIGEST}
